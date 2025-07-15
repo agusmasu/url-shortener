@@ -9,8 +9,8 @@ export class Url {
     @Column()
     url: string;
 
-    @Column()
-    shortUrl: string;
+    @Column({ unique: true })
+    slug: string;
 
     @Column()
     createdBy: string;

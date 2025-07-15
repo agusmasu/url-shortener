@@ -32,6 +32,81 @@
 $ pnpm install
 ```
 
+## URL Shortener API Features
+
+This is a URL shortener API built with NestJS that allows you to create shortened URLs and redirect users to the original URLs.
+
+### API Endpoints
+
+#### Create a shortened URL
+```bash
+POST /url
+Content-Type: application/json
+
+{
+  "url": "https://www.example.com/very-long-url"
+}
+```
+
+Response:
+```json
+{
+  "id": 1,
+  "url": "https://www.example.com/very-long-url",
+  "slug": "abc123",
+  "createdBy": "user_1234",
+  "createdAt": "2025-07-15T00:58:24.291Z",
+  "updatedAt": "2025-07-15T00:58:24.291Z"
+}
+```
+
+#### Redirect to original URL
+```bash
+GET /{slug}
+```
+
+This will redirect the user to the original URL associated with the slug. For example:
+- `GET /abc123` → redirects to `https://www.example.com/very-long-url`
+
+#### Alternative redirect endpoint
+```bash
+GET /url/redirect/{slug}
+```
+
+Same functionality as the root-level redirect, but with explicit `/url/redirect/` prefix.
+
+#### Get all URLs
+```bash
+GET /url
+```
+
+#### Get URL by ID
+```bash
+GET /url/{id}
+```
+
+#### Update URL
+```bash
+PATCH /url/{id}
+Content-Type: application/json
+
+{
+  "url": "https://www.new-example.com"
+}
+```
+
+#### Delete URL
+```bash
+DELETE /url/{id}
+```
+
+### How it works
+
+1. When you create a shortened URL, the API generates a unique 6-character slug
+2. The slug is used to create a shortened URL like `http://localhost:3000/abc123`
+3. When someone visits the shortened URL, they are automatically redirected to the original URL
+4. If a slug doesn't exist, a 404 error is returned
+
 ## Compile and run the project
 
 ```bash

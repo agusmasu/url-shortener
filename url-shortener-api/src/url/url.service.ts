@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,17 +12,80 @@ export class UrlService {
     private readonly urlRepository: Repository<Url>,
   ) {}
 
+  private validateUrl(url: string): void {
+    try {
+      const urlObj = new URL(url);
+      
+      // Check if the URL has a valid protocol
+      if (!['http:', 'https:'].includes(urlObj.protocol)) {
+        throw new BadRequestException('Only HTTP and HTTPS protocols are allowed');
+      }
+      
+      // Check if the URL has a valid hostname
+      if (!urlObj.hostname || urlObj.hostname.length === 0) {
+        throw new BadRequestException('URL must have a valid hostname');
+      }
+      
+      // Check for common invalid hostnames
+      const invalidHostnames = ['localhost', '127.0.0.1', '0.0.0.0'];
+      if (invalidHostnames.includes(urlObj.hostname.toLowerCase())) {
+        throw new BadRequestException('Localhost and local IP addresses are not allowed');
+      }
+      
+      // Check if the URL is not too long (reasonable limit)
+      if (url.length > 2048) {
+        throw new BadRequestException('URL is too long (maximum 2048 characters)');
+      }
+      
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid URL format');
+    }
+  }
+
   async create(createUrlDto: CreateUrlDto) {
-    // Generate a short URL (simple random string for now)
-    const shortUrl = Math.random().toString(36).substring(2, 8);
+    // Validate the URL at service level
+    this.validateUrl(createUrlDto.url);
+    
     // Assign a random user ID
     const createdBy = `user_${Math.floor(Math.random() * 10000)}`;
-    const url = this.urlRepository.create({
-      url: createUrlDto.url,
-      shortUrl,
-      createdBy,
-    });
-    return this.urlRepository.save(url);
+    
+    // Generate a unique slug with retry logic
+    let slug: string;
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    do {
+      slug = Math.random().toString(36).substring(2, 8);
+      attempts++;
+      
+      // Check if slug already exists
+      const existingUrl = await this.urlRepository.findOneBy({ slug });
+      if (!existingUrl) {
+        break;
+      }
+    } while (attempts < maxAttempts);
+    
+    if (attempts >= maxAttempts) {
+      throw new ConflictException('Unable to generate unique slug after maximum attempts');
+    }
+    
+    try {
+      const url = this.urlRepository.create({
+        url: createUrlDto.url,
+        slug,
+        createdBy,
+      });
+      return await this.urlRepository.save(url);
+    } catch (error) {
+      // Handle database-level unique constraint violations
+      if (error.code === '23505' || error.message.includes('UNIQUE constraint failed')) {
+        throw new ConflictException('Slug already exists. Please try again.');
+      }
+      throw error;
+    }
   }
 
   findAll() {
@@ -33,7 +96,16 @@ export class UrlService {
     return this.urlRepository.findOneBy({ id });
   }
 
+  findBySlug(slug: string) {
+    return this.urlRepository.findOneBy({ slug });
+  }
+
   async update(id: number, updateUrlDto: UpdateUrlDto) {
+    // Validate the URL if it's being updated
+    if (updateUrlDto.url) {
+      this.validateUrl(updateUrlDto.url);
+    }
+    
     await this.urlRepository.update(id, updateUrlDto);
     return this.urlRepository.findOneBy({ id });
   }
