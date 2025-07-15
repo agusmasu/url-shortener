@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,6 +12,8 @@ import { useAuth } from "@/contexts/auth-context"
 import { UserMenu } from "@/components/auth/user-menu"
 import { authService } from "@/lib/auth"
 import { GlassCard } from "@/components/ui/glass-card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
 
 interface ShortenedUrl {
   id: number
@@ -30,8 +31,19 @@ export default function HomePage() {
   const [shortenedUrl, setShortenedUrl] = useState<ShortenedUrl | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   const { isAuthenticated, user } = useAuth()
+  const router = useRouter()
+
+  // Pre-populate URL field from localStorage if present
+  useEffect(() => {
+    const savedUrl = typeof window !== "undefined" ? localStorage.getItem("pending_url") : null
+    if (savedUrl) {
+      setUrl(savedUrl)
+      localStorage.removeItem("pending_url")
+    }
+  }, [])
 
   const validateUrl = (url: string): boolean => {
     try {
@@ -72,30 +84,12 @@ export default function HomePage() {
         const data = await response.json()
         setShortenedUrl(data)
       } else {
-        // Simulate API call for non-authenticated users
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        const slug = customSlug || Math.random().toString(36).substring(2, 8)
-        const newShortenedUrl: ShortenedUrl = {
-          id: Date.now(),
-          url: url,
-          slug,
-          createdBy: 0,
-          visitCount: 0,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-
-        setShortenedUrl(newShortenedUrl)
-
-        // Save to localStorage for demo purposes
-        const existingUrls = JSON.parse(localStorage.getItem("shortenedUrls") || "[]")
-        existingUrls.push(newShortenedUrl)
-        localStorage.setItem("shortenedUrls", JSON.stringify(existingUrls))
+        // Show modal instead of error
+        setShowLoginModal(true)
+        setIsLoading(false)
       }
     } catch (err) {
       setError("Failed to shorten URL. Please try again.")
-    } finally {
       setIsLoading(false)
     }
   }
@@ -321,6 +315,27 @@ export default function HomePage() {
           )}
         </div>
       </div>
+      <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>You're one step away! 🚀🔒</DialogTitle>
+            <DialogDescription>
+              Sign in or create an account to save and manage your shortened URLs.
+            </DialogDescription>
+          </DialogHeader>
+          <Button
+            className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("pending_url", url)
+              }
+              router.push("/auth")
+            }}
+          >
+            Sign In / Sign Up
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
