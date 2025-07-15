@@ -78,10 +78,10 @@ describe('UrlService', () => {
 
     it('creates a URL with a valid custom slug', async () => {
       (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce(null);
-      const dto = { url: 'https://www.example.com', customSlug: 'mycustomslug' };
+      const dto = { url: 'https://www.example.com', slug: 'mycustomslug' };
       const result = await service.create(dto as any);
       expect(result.url).toBe(dto.url);
-      expect(result.slug).toBe(dto.customSlug);
+      expect(result.slug).toBe(dto.slug);
     });
 
     it('throws on duplicate custom slug', async () => {

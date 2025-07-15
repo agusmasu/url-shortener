@@ -62,17 +62,17 @@ export class UrlService {
     const createdBy = user.sub;
     
     let slug: string;
-    if (createUrlDto.customSlug) {
+    if (createUrlDto.slug) {
       // Validate custom slug: alphanumeric, 3-32 chars
-      if (!/^[a-zA-Z0-9_-]{3,32}$/.test(createUrlDto.customSlug)) {
+      if (!/^[a-zA-Z0-9_-]{3,32}$/.test(createUrlDto.slug)) {
         throw new BadRequestException('Custom slug must be 3-32 characters, alphanumeric, dashes or underscores only');
       }
       // Check if custom slug already exists
-      const existingUrl = await this.urlRepository.findOneBy({ slug: createUrlDto.customSlug });
+      const existingUrl = await this.urlRepository.findOneBy({ slug: createUrlDto.slug });
       if (existingUrl) {
         throw new ConflictException('Custom slug is already taken. Please choose another one.');
       }
-      slug = createUrlDto.customSlug;
+      slug = createUrlDto.slug;
     } else {
       // Generate a unique slug with retry logic
       let attempts = 0;
