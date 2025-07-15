@@ -78,7 +78,20 @@ export default function HomePage() {
         })
 
         if (!response.ok) {
-          throw new Error("Failed to shorten URL")
+          let errorMsg = "Failed to shorten URL. Please try again."
+          try {
+            const errorData = await response.json()
+            if (errorData && errorData.message) {
+              if (Array.isArray(errorData.message)) {
+                errorMsg = errorData.message[0]
+              } else if (typeof errorData.message === "string") {
+                errorMsg = errorData.message
+              }
+            }
+          } catch {}
+          setError(errorMsg)
+          setIsLoading(false)
+          return
         }
 
         const data = await response.json()
@@ -205,10 +218,10 @@ export default function HomePage() {
                 </div>
 
                 {error && (
-                  <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+                  <div className="flex items-center gap-3 bg-red-600/90 border border-red-700 rounded-lg px-4 py-3 mb-2 animate-shake shadow-lg">
+                    <AlertCircle className="h-6 w-6 text-white flex-shrink-0" />
+                    <span className="text-white font-semibold text-base">{error}</span>
+                  </div>
                 )}
 
                 <Button
