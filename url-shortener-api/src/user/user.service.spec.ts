@@ -4,11 +4,16 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 const mockUserRepository = () => ({
   findOneBy: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+});
+
+const mockJwtService = () => ({
+  sign: jest.fn().mockReturnValue('mocked-jwt-token'),
 });
 
 describe('UserService', () => {
@@ -20,6 +25,7 @@ describe('UserService', () => {
       providers: [
         UserService,
         { provide: getRepositoryToken(User), useFactory: mockUserRepository },
+        { provide: JwtService, useFactory: mockJwtService },
       ],
     }).compile();
 
@@ -65,9 +71,9 @@ describe('UserService', () => {
     });
 
     it('should succeed if credentials are valid', async () => {
-      userRepository.findOneBy.mockResolvedValue({ email: 'test@example.com', encodedPassword: 'hashed' });
+      userRepository.findOneBy.mockResolvedValue({ email: 'test@example.com', encodedPassword: 'hashed', id: 1 });
       jest.spyOn(bcrypt, 'compareSync').mockReturnValue(true);
-      await expect(service.login({ email: 'test@example.com', password: 'password' })).resolves.toBeUndefined();
+      await expect(service.login({ email: 'test@example.com', password: 'password' })).resolves.toEqual({ access_token: 'mocked-jwt-token' });
     });
   });
 });
