@@ -39,7 +39,7 @@ function DashboardContent() {
   const loadUrls = async () => {
     setIsLoading(true)
     try {
-      // Try to fetch from API first
+      // Try to fetch from API only
       const response = await authService.authenticatedFetch("/api/urls")
 
       if (response.ok) {
@@ -57,18 +57,12 @@ function DashboardContent() {
         setUrls(mapped)
         setFilteredUrls(mapped)
       } else {
-        // Fallback to localStorage for demo
-        const savedUrls = JSON.parse(localStorage.getItem("shortenedUrls") || "[]")
-        // Filter URLs for current user if userId exists
-        const userUrls = user?.id ? savedUrls.filter((url: ShortenedUrl) => url.userId === user.id) : savedUrls
-        setUrls(userUrls)
-        setFilteredUrls(userUrls)
+        setUrls([])
+        setFilteredUrls([])
       }
     } catch (error) {
-      // Fallback to localStorage
-      const savedUrls = JSON.parse(localStorage.getItem("shortenedUrls") || "[]")
-      setUrls(savedUrls)
-      setFilteredUrls(savedUrls)
+      setUrls([])
+      setFilteredUrls([])
     } finally {
       setIsLoading(false)
     }
@@ -102,7 +96,7 @@ function DashboardContent() {
 
   const deleteUrl = async (id: number) => {
     try {
-      // Try API call first
+      // Try API call only
       const response = await authService.authenticatedFetch(`/api/urls/${id}`, {
         method: "DELETE",
       })
@@ -114,18 +108,10 @@ function DashboardContent() {
           description: "URL has been deleted successfully",
         })
       } else {
-        // Fallback to localStorage
-        const updatedUrls = urls.filter((url) => url.id !== id)
-        setUrls(updatedUrls)
-
-        // Update localStorage
-        const allUrls = JSON.parse(localStorage.getItem("shortenedUrls") || "[]")
-        const filteredAllUrls = allUrls.filter((url: ShortenedUrl) => url.id !== id)
-        localStorage.setItem("shortenedUrls", JSON.stringify(filteredAllUrls))
-
         toast({
-          title: "Deleted ✨",
-          description: "URL has been deleted successfully",
+          title: "Error",
+          description: "Failed to delete URL",
+          variant: "destructive",
         })
       }
     } catch (error) {
@@ -166,7 +152,7 @@ function DashboardContent() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-12">
           <div className="flex-1">
             <h1 className="text-4xl font-bold mb-2 gradient-text">Dashboard</h1>
-            <p className="text-xl text-muted-foreground">Welcome back, {user?.name || user?.email}! ✨</p>
+            <p className="text-xl text-muted-foreground">Welcome back, {user?.email}! ✨</p>
           </div>
           <div className="flex items-center gap-4 flex-shrink-0">
             <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20">

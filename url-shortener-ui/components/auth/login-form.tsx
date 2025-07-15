@@ -96,7 +96,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
         </div>
 
         {error && (
-          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -122,12 +122,6 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
             Sign up
           </button>
         </p>
-      </div>
-
-      <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-        <p className="text-sm font-medium text-blue-400 mb-1">Demo Account:</p>
-        <p className="text-xs text-muted-foreground">Email: demo@example.com</p>
-        <p className="text-xs text-muted-foreground">Password: password</p>
       </div>
     </div>
   )

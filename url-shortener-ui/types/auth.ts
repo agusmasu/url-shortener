@@ -1,7 +1,6 @@
 export interface User {
   id: string
   email: string
-  name?: string
   createdAt: string
 }
 
@@ -19,14 +18,13 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string
   password: string
-  name?: string
 }
 
 export interface AuthContextType {
   user: User | null
   token: string | null
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name?: string) => Promise<void>
+  register: (email: string, password: string) => Promise<void>
   logout: () => void
   isLoading: boolean
   isAuthenticated: boolean

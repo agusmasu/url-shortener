@@ -15,7 +15,6 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onToggleMode }: RegisterFormProps) {
-  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -59,7 +58,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
     }
 
     try {
-      await register(email, password, name || undefined)
+      await register(email, password)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed")
     }
@@ -73,23 +72,6 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm font-medium">
-            Name (Optional)
-          </Label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="name"
-              type="text"
-              placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="pl-10 h-12 bg-white/5 border-white/20 focus:border-purple-400 focus:ring-purple-400"
-            />
-          </div>
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium">
             Email *

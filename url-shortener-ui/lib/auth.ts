@@ -20,7 +20,14 @@ class AuthService {
   private getStoredUser() {
     if (typeof window === "undefined") return null
     const userStr = localStorage.getItem("user")
-    return userStr ? JSON.parse(userStr) : null
+    if (!userStr) return null
+    try {
+      return JSON.parse(userStr)
+    } catch {
+      // If invalid JSON, clear the value and return null
+      localStorage.removeItem("user")
+      return null
+    }
   }
 
   private setStoredUser(user: any): void {
@@ -28,89 +35,49 @@ class AuthService {
   }
 
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      })
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Login failed")
-      }
-
-      const data: AuthResponse = await response.json()
-
-      // Store token and user data
-      this.setStoredToken(data.accessToken)
-      this.setStoredUser(data.user)
-
-      return data
-    } catch (error) {
-      // For demo purposes, simulate successful login
-      if (credentials.email === "demo@example.com" && credentials.password === "password") {
-        const mockResponse: AuthResponse = {
-          user: {
-            id: "1",
-            email: credentials.email,
-            name: "Demo User",
-            createdAt: new Date().toISOString(),
-          },
-          accessToken: "mock-jwt-token-" + Date.now(),
-        }
-
-        this.setStoredToken(mockResponse.accessToken)
-        this.setStoredUser(mockResponse.user)
-
-        return mockResponse
-      }
-
-      throw error
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || "Login failed")
     }
+
+    const data: AuthResponse = await response.json()
+
+    // Store token and user data
+    this.setStoredToken(data.accessToken)
+    this.setStoredUser(data.user)
+
+    return data
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      })
+    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    })
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Registration failed")
-      }
-
-      const data: AuthResponse = await response.json()
-
-      // Store token and user data
-      this.setStoredToken(data.accessToken)
-      this.setStoredUser(data.user)
-
-      return data
-    } catch (error) {
-      // For demo purposes, simulate successful registration
-      const mockResponse: AuthResponse = {
-        user: {
-          id: Date.now().toString(),
-          email: userData.email,
-          name: userData.name || "New User",
-          createdAt: new Date().toISOString(),
-        },
-        accessToken: "mock-jwt-token-" + Date.now(),
-      }
-
-      this.setStoredToken(mockResponse.accessToken)
-      this.setStoredUser(mockResponse.user)
-
-      return mockResponse
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || "Registration failed")
     }
+
+    const data: AuthResponse = await response.json()
+
+    // Store token and user data
+    this.setStoredToken(data.accessToken)
+    this.setStoredUser(data.user)
+
+    return data
   }
 
   logout(): void {

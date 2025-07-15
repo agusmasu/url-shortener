@@ -195,6 +195,22 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+## Docker Usage
+
+You can run the API using Docker:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t url-shortener-api .
+   ```
+
+2. Run the container (make sure to set environment variables as needed):
+   ```bash
+   docker run --env-file .env -p 3001:3001 url-shortener-api
+   ```
+
+This will start the API on port 3001 by default. Adjust the `.env` file or environment variables as needed for your setup.
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
@@ -221,3 +237,26 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Environment Variables
+
+The following environment variables are required for running the API (with defaults shown):
+
+```
+# Database configuration
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=url-shortener
+
+# JWT Secret
+JWT_SECRET=default_jwt_secret
+
+# API Port
+PORT=3001
+```
+
+You can create a `.env` file in the root of the `url-shortener-api` directory with these variables for local development.
+
+```

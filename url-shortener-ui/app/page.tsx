@@ -38,11 +38,7 @@ export default function HomePage() {
 
   // Pre-populate URL field from localStorage if present
   useEffect(() => {
-    const savedUrl = typeof window !== "undefined" ? localStorage.getItem("pending_url") : null
-    if (savedUrl) {
-      setUrl(savedUrl)
-      localStorage.removeItem("pending_url")
-    }
+    // Remove all localStorage usage for pending_url
   }, [])
 
   const validateUrl = (url: string): boolean => {
@@ -218,10 +214,10 @@ export default function HomePage() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-3 bg-red-600/90 border border-red-700 rounded-lg px-4 py-3 mb-2 animate-shake shadow-lg">
-                    <AlertCircle className="h-6 w-6 text-white flex-shrink-0" />
-                    <span className="text-white font-semibold text-base">{error}</span>
-                  </div>
+                  <Alert variant="destructive" className="mb-2 animate-shake">
+                    <AlertCircle className="h-6 w-6" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
                 )}
 
                 <Button
@@ -340,7 +336,7 @@ export default function HomePage() {
             className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             onClick={() => {
               if (typeof window !== "undefined") {
-                localStorage.setItem("pending_url", url)
+                // localStorage.setItem("pending_url", url) // Removed
               }
               router.push("/auth")
             }}

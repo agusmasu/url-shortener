@@ -25,7 +25,17 @@ export class UserService {
     // Hash the password before saving
     const hashedPassword = this.hashPassword(signUpDto.password);
     const userToCreate = this.userRepository.create({ email: signUpDto.email, encodedPassword: hashedPassword });
-    return this.userRepository.save(userToCreate);
+    const user = await this.userRepository.save(userToCreate);
+    // Generate JWT
+    const payload = { sub: user.id, email: user.email };
+    const token = this.jwtService.sign(payload);
+    // Prepare user object for response (exclude password)
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
+    return { user: userResponse, accessToken: token };
   }
 
   async login(loginDto: LoginDto) {

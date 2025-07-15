@@ -49,16 +49,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const register = async (email: string, password: string, name?: string) => {
+  const register = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      const response = await authService.register({ email, password, name })
+      const response = await authService.register({ email, password })
       setUser(response.user)
       setToken(response.accessToken)
 
       toast({
         title: "Account created!",
-        description: `Welcome ${response.user.name || response.user.email}`,
+        description: `Welcome ${response.user.email}`,
       })
     } catch (error) {
       toast({
