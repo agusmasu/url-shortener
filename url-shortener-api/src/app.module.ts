@@ -5,6 +5,7 @@ import { UrlModule } from './url/url.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Url } from './url/entities/url.entity';
 import { Visit } from './url/entities/visit.entity';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Visit } from './url/entities/visit.entity';
       synchronize: true,
     }),
     UrlModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
