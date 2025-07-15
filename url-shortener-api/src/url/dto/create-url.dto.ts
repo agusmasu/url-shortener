@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, Validate } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, Validate, IsUrl } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, registerDecorator, ValidationOptions } from 'class-validator';
 
@@ -35,13 +35,7 @@ export class CreateUrlDto {
 
     @IsString()
     @IsNotEmpty({ message: 'URL is required' })
-    @Transform(({ value }) => {
-      // Normalize the URL by ensuring it has a protocol
-      if (value && !value.startsWith('http://') && !value.startsWith('https://')) {
-        return `https://${value}`;
-      }
-      return value;
-    })
+    @IsUrl({ protocols: ['http', 'https'], require_tld: true, require_protocol: true})
     url: string;
 
     /**

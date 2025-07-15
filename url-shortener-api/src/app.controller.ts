@@ -10,22 +10,28 @@ export class AppController {
     private readonly urlService: UrlService,
   ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
   @Get(':slug')
   async redirect(@Param('slug') slug: string, @Req() req: Request, @Res() res: Response) {
-    console.log("Redirecting to URL", slug);
-    const ip = req.ip;                                  // Client IP (honors trust proxy)
-    const referer = req.headers['referer'] || null;     // Referer header (spell‑checked per RFC)
-    const userAgent = req.headers['user-agent'] || '';  // User‑Agent header
+    // First, we get the information about the visit:
+    const ip = req.ip;
+    const referer = req.headers['referer'] || null;
+    const userAgent = req.headers['user-agent'] || '';
+    
+    const frontendBaseUrl = process.env.CLIENT_BASE_URL || 'http://localhost:3000';
+    try {
+      // Then, we record the visit:
+      const url = await this.urlService.visitUrl(slug, ip, userAgent, referer);
+      
+      // Finally, we redirect to the URL:
+      return res.redirect(url.url);
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        // If the URL is not found, we redirect to our not-found page:
+        return res.redirect(`${frontendBaseUrl}/not-found`);
+      }
 
-    const url = await this.urlService.visitUrl(slug, ip, userAgent, referer);
-    if (!url) {
-      throw new NotFoundException('URL not found');
+      // TODO We could potentially redirect to a generic error page here
+      throw err;
     }
-    return res.redirect(HttpStatus.FOUND, url.url);
   }
 }

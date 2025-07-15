@@ -4,6 +4,8 @@ import { UrlService } from './url.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
 import { VisitService } from './visit.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 describe('UrlController', () => {
   let controller: UrlController;
@@ -35,6 +37,14 @@ describe('UrlController', () => {
         {
           provide: getRepositoryToken(Url),
           useValue: {},
+        },
+        {
+          provide: JwtService,
+          useValue: { verifyAsync: jest.fn() },
+        },
+        {
+          provide: AuthGuard,
+          useValue: { canActivate: jest.fn().mockResolvedValue(true) },
         },
       ],
     }).compile();

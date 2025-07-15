@@ -71,7 +71,8 @@ describe('UrlService', () => {
     it('creates a URL with a valid input', async () => {
       (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce(null);
       const dto = { url: 'https://www.example.com' };
-      const result = await service.create(dto as any);
+      const mockUser = { sub: 1, email: 'test@example.com' };
+      const result = await service.create(dto as any, mockUser);
       expect(result.url).toBe(dto.url);
       expect(result.slug).toBeDefined();
     });
@@ -79,28 +80,33 @@ describe('UrlService', () => {
     it('creates a URL with a valid custom slug', async () => {
       (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce(null);
       const dto = { url: 'https://www.example.com', slug: 'mycustomslug' };
-      const result = await service.create(dto as any);
+      const mockUser = { sub: 1, email: 'test@example.com' };
+      const result = await service.create(dto as any, mockUser);
       expect(result.url).toBe(dto.url);
       expect(result.slug).toBe(dto.slug);
     });
 
     it('throws on duplicate custom slug', async () => {
       (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce({ slug: 'taken' } as any);
-      const dto = { url: 'https://www.example.com', customSlug: 'taken' };
-      await expect(service.create(dto as any)).rejects.toThrow(ConflictException);
+      const dto = { url: 'https://www.example.com', slug: 'taken' };
+      const mockUser = { sub: 1, email: 'test@example.com' };
+      await expect(service.create(dto as any, mockUser)).rejects.toThrow(ConflictException);
     });
 
     it('throws on invalid custom slug (bad chars)', async () => {
-      const dto = { url: 'https://www.example.com', customSlug: 'bad slug!' };
-      await expect(service.create(dto as any)).rejects.toThrow(BadRequestException);
+      const dto = { url: 'https://www.example.com', slug: 'bad slug!' };
+      const mockUser = { sub: 1, email: 'test@example.com' };
+      await expect(service.create(dto as any, mockUser)).rejects.toThrow(BadRequestException);
     });
 
     it('throws on invalid custom slug (too short)', async () => {
-      const dto = { url: 'https://www.example.com', customSlug: 'ab' };
-      await expect(service.create(dto as any)).rejects.toThrow(BadRequestException);
+      const dto = { url: 'https://www.example.com', slug: 'ab' };
+      const mockUser = { sub: 1, email: 'test@example.com' };
+      await expect(service.create(dto as any, mockUser)).rejects.toThrow(BadRequestException);
     });
     it('throws on invalid URL', async () => {
-      await expect(service.create({ url: 'not-a-url' } as any)).rejects.toThrow(BadRequestException);
+      const mockUser = { sub: 1, email: 'test@example.com' };
+      await expect(service.create({ url: 'not-a-url' } as any, mockUser)).rejects.toThrow(BadRequestException);
     });
   });
 });

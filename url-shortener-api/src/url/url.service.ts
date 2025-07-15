@@ -1,6 +1,5 @@
 import { Injectable, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from './entities/url.entity';
@@ -139,7 +138,16 @@ export class UrlService {
     return this.urlRepository.findOneBy({ slug });
   }
 
+  /**
+   * Records a visit to a URL, and returns the information about the URL
+   * @param slug - The slug of the URL
+   * @param ipAddress - The IP address of the visitor
+   * @param userAgent - The user agent of the visitor
+   * @param referer - The referer of the visitor
+   * @returns The URL
+   */
   async visitUrl(slug: string, ipAddress: string, userAgent: string, referer: string) {
+    // Get the URL
     const url = await this.findBySlug(slug);
     if (!url) {
       throw new NotFoundException('URL not found');
@@ -150,29 +158,8 @@ export class UrlService {
       console.error('Failed to record visit:', error);
     });
     
-    // Redirect to the URL
+    // Return the URL information
     return url;
-  }
-
-  /**
-   * Update a URL
-   * @param id - The ID of the URL
-   * @param updateUrlDto - The URL to update
-   * @returns The updated URL
-   */
-  async update(id: number, updateUrlDto: UpdateUrlDto, user: any) {
-    // Validate the URL if it's being updated
-    if (updateUrlDto.url) {
-      this.validateUrl(updateUrlDto.url);
-    }
-    
-    const url = await this.urlRepository.findOneBy({ id, createdBy: user.sub });
-    if (!url) {
-      throw new NotFoundException('URL not found');
-    }
-    
-    await this.urlRepository.update(id, updateUrlDto);
-    return this.urlRepository.findOneBy({ id, createdBy: user.sub });
   }
 
   /**

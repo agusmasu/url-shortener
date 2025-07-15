@@ -3,7 +3,6 @@ import { Response, Request } from 'express';
 import { UrlService } from './url.service';
 import { VisitService } from './visit.service';
 import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
 import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('admin/url')
@@ -16,14 +15,14 @@ export class UrlController {
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createUrlDto: CreateUrlDto, @Req() req: Request) {
-    const user = req.user;
+    const user = (req as any).user;
     return this.urlService.create(createUrlDto, user);
   }
 
   @Get('list')
   @UseGuards(AuthGuard)
   findAll(@Req() req: Request) {
-    const user = req.user;
+    const user = (req as any).user;
     console.info(`User ${user.sub} is fetching all URLs`);
     return this.urlService.findAll(user.sub);
   }
@@ -31,37 +30,15 @@ export class UrlController {
   @Get(':id')
   @UseGuards(AuthGuard)
   findOne(@Param('id') id: string, @Req() req: Request) {
-    const user = req.user;
+    const user = (req as any).user;
     console.info(`User ${user.sub} is fetching URL ${id}`);
     return this.urlService.findOneByCreator(+id, user.sub);
-  }
-
-  @Get('redirect/:slug')
-  async redirect(@Param('slug') slug: string, @Res() res: Response, @Req() req: Request) {
-    console.log("Redirecting to URL", slug);
-
-    // Extract visitor information
-    const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
-    const userAgent = req.get('User-Agent');
-    const referer = req.get('Referer');
-
-    const url = await this.urlService.visitUrl(slug, ipAddress, userAgent, referer);
-
-    return res.redirect(HttpStatus.FOUND, url.url);
-  }
-
-  @Patch(':id')
-  @UseGuards(AuthGuard)
-  update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto, @Req() req: Request) {
-    const user = req.user;
-    console.info(`User ${user.sub} is updating URL ${id}`);
-    return this.urlService.update(+id, updateUrlDto, user);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
   remove(@Param('id') id: string, @Req() req: Request) {
-    const user = req.user;
+    const user = (req as any).user;
     console.info(`User ${user.sub} is deleting URL ${id}`);
     return this.urlService.remove(+id, user);
   }

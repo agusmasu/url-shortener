@@ -8,11 +8,21 @@ import { LoginDto } from './dto/login-dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * API to sign up a new user
+   * @param createUserDto - The user data
+   * @returns The user data, along with the access token
+   */
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
     return this.userService.signUp(createUserDto);
   }
 
+  /**
+   * API to login a user
+   * @param loginDto - The user data, containing the email and password
+   * @returns The user data, along with the access token
+   */
   @Post('login')
   login(@Body() loginDto: LoginDto) {
     return this.userService.login(loginDto);

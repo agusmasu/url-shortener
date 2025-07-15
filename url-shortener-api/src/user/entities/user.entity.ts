@@ -7,15 +7,15 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
+    @Column({ unique: true, nullable: false, select: true, length: 255})
     email: string;
 
-    @Column()
+    @Column({nullable: false, select: false, length: 255})
     encodedPassword: string;
 
-    @CreateDateColumn()
+    @CreateDateColumn({type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     updatedAt: Date;
 }
