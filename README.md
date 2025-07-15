@@ -287,27 +287,13 @@ pnpm run format
 
 ### High Priority
 
-1. **User Authentication & Authorization**
-   - JWT-based authentication
-   - User registration and login
-   - Role-based access control
-   - Associate URLs with authenticated users
-
-2. **Custom Slugs**
+1. **Custom Slugs**
    - Allow users to specify custom slugs
    - Validate slug uniqueness
    - Slug format validation (alphanumeric, length limits)
 
-3. **URL Analytics**
-   - Click tracking and statistics
-   - Geographic data collection
-   - Referrer tracking
-   - Time-based analytics
-
-4. **URL Expiration**
-   - Set expiration dates for URLs
-   - Automatic cleanup of expired URLs
-   - Configurable expiration policies
+2. **Sub-Domain for Admin APIs**
+   - Only allow API actions under a subdomain (e.g, admin.urlshortener.com), so that they do not interfer with the URLs to be redirected 
 
 ### Medium Priority
 
@@ -316,43 +302,14 @@ pnpm run format
    - Prevent abuse and spam
    - Configurable limits
 
-6. **URL Categories & Tags**
-   - Organize URLs with categories
-   - Tag-based filtering and search
-   - Bulk operations
-
-7. **QR Code Generation**
-   - Generate QR codes for short URLs
-   - QR code customization options
-   - Download QR codes as images
-
-8. **Bulk URL Import**
-   - CSV/JSON import functionality
-   - Batch URL creation
-   - Import validation and error handling
-
 ### Low Priority
 
-9. **URL Preview**
-   - Generate preview cards for URLs
-   - Meta tag extraction
-   - Thumbnail generation
-
-10. **Advanced Analytics Dashboard**
-    - Real-time analytics
-    - Custom date ranges
-    - Export functionality
-    - Visual charts and graphs
-
-11. **API Rate Limiting & Quotas**
-    - Different tiers for API usage
-    - Usage tracking and billing
-    - API key management
-
-12. **URL Health Monitoring**
+1. **URL Health Monitoring**
     - Check if URLs are still accessible
     - Broken link detection
     - Automatic notifications
+
+2. **Soft Deletion**
 
 ### Technical Improvements
 
@@ -375,18 +332,6 @@ pnpm run format
     - Docker containerization
     - CI/CD pipeline
     - Environment-specific configurations
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Support
 

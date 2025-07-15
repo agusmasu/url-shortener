@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateUrlDto {
@@ -13,5 +13,12 @@ export class CreateUrlDto {
       return value;
     })
     url: string;
+
+    /**
+     * Optional custom slug for the shortened URL. If provided, the service will use this slug if available.
+     */
+    @IsOptional()
+    @IsString({ message: 'Custom slug must be a string' })
+    customSlug?: string;
 
 }

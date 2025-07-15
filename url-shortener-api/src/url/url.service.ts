@@ -61,26 +61,35 @@ export class UrlService {
     // Assign a random user ID
     const createdBy = user.sub;
     
-    // Generate a unique slug with retry logic
     let slug: string;
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    do {
-      slug = Math.random().toString(36).substring(2, 8);
-      attempts++;
-      
-      // Check if slug already exists
-      const existingUrl = await this.urlRepository.findOneBy({ slug });
-      if (!existingUrl) {
-        break;
+    if (createUrlDto.customSlug) {
+      // Validate custom slug: alphanumeric, 3-32 chars
+      if (!/^[a-zA-Z0-9_-]{3,32}$/.test(createUrlDto.customSlug)) {
+        throw new BadRequestException('Custom slug must be 3-32 characters, alphanumeric, dashes or underscores only');
       }
-    } while (attempts < maxAttempts);
-    
-    if (attempts >= maxAttempts) {
-      throw new ConflictException('Unable to generate unique slug after maximum attempts');
+      // Check if custom slug already exists
+      const existingUrl = await this.urlRepository.findOneBy({ slug: createUrlDto.customSlug });
+      if (existingUrl) {
+        throw new ConflictException('Custom slug is already taken. Please choose another one.');
+      }
+      slug = createUrlDto.customSlug;
+    } else {
+      // Generate a unique slug with retry logic
+      let attempts = 0;
+      const maxAttempts = 10;
+      do {
+        slug = Math.random().toString(36).substring(2, 8);
+        attempts++;
+        // Check if slug already exists
+        const existingUrl = await this.urlRepository.findOneBy({ slug });
+        if (!existingUrl) {
+          break;
+        }
+      } while (attempts < maxAttempts);
+      if (attempts >= maxAttempts) {
+        throw new ConflictException('Unable to generate unique slug after maximum attempts');
+      }
     }
-    
     try {
       const url = this.urlRepository.create({
         url: createUrlDto.url,

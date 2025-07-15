@@ -65,16 +65,39 @@ describe('UrlService', () => {
   });
 
   describe('create', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
     it('creates a URL with a valid input', async () => {
-      jest.spyOn(urlRepository, 'findOneBy').mockResolvedValueOnce(null);
+      (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce(null);
       const dto = { url: 'https://www.example.com' };
       const result = await service.create(dto as any);
       expect(result.url).toBe(dto.url);
       expect(result.slug).toBeDefined();
     });
-    it('throws on duplicate slug', async () => {
-      jest.spyOn(urlRepository, 'findOneBy').mockResolvedValue({ slug: 'abc123' } as any);
-      await expect(service.create({ url: 'https://www.example.com' } as any)).rejects.toThrow(ConflictException);
+
+    it('creates a URL with a valid custom slug', async () => {
+      (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce(null);
+      const dto = { url: 'https://www.example.com', customSlug: 'mycustomslug' };
+      const result = await service.create(dto as any);
+      expect(result.url).toBe(dto.url);
+      expect(result.slug).toBe(dto.customSlug);
+    });
+
+    it('throws on duplicate custom slug', async () => {
+      (urlRepository as any).findOneBy = jest.fn().mockResolvedValueOnce({ slug: 'taken' } as any);
+      const dto = { url: 'https://www.example.com', customSlug: 'taken' };
+      await expect(service.create(dto as any)).rejects.toThrow(ConflictException);
+    });
+
+    it('throws on invalid custom slug (bad chars)', async () => {
+      const dto = { url: 'https://www.example.com', customSlug: 'bad slug!' };
+      await expect(service.create(dto as any)).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws on invalid custom slug (too short)', async () => {
+      const dto = { url: 'https://www.example.com', customSlug: 'ab' };
+      await expect(service.create(dto as any)).rejects.toThrow(BadRequestException);
     });
     it('throws on invalid URL', async () => {
       await expect(service.create({ url: 'not-a-url' } as any)).rejects.toThrow(BadRequestException);

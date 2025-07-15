@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 // import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login-dto';
 
-@Controller('user')
+@Controller('auth')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

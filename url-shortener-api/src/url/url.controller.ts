@@ -6,7 +6,7 @@ import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { AuthGuard } from '../auth/auth.guard';
 
-@Controller('url')
+@Controller('admin/url')
 export class UrlController {
   constructor(
     private readonly urlService: UrlService,
