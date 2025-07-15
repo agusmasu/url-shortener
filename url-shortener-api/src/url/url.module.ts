@@ -5,9 +5,10 @@ import { VisitService } from './visit.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
 import { Visit } from './entities/visit.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Url, Visit])],
+  imports: [TypeOrmModule.forFeature([Url, Visit]), AuthModule],
   controllers: [UrlController],
   providers: [UrlService, VisitService],
   exports: [UrlService, VisitService],

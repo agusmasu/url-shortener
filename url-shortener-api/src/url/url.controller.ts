@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, NotFoundException, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, NotFoundException, Req, Query, UseGuards } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UrlService } from './url.service';
 import { VisitService } from './visit.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('url')
 export class UrlController {
@@ -13,6 +14,7 @@ export class UrlController {
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   create(@Body() createUrlDto: CreateUrlDto) {
     return this.urlService.create(createUrlDto);
   }

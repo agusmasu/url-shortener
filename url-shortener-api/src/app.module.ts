@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Url } from './url/entities/url.entity';
 import { Visit } from './url/entities/visit.entity';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { User } from './user/entities/user.entity';
 
 @Module({
   imports: [
@@ -16,11 +18,12 @@ import { UserModule } from './user/user.module';
       username: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'postgres',
       database: process.env.POSTGRES_DB || 'url-shortener',
-      entities: [Url, Visit],
+      entities: [Url, Visit, User],
       synchronize: true,
     }),
     UrlModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
