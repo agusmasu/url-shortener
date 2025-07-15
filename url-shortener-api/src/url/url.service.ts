@@ -1,15 +1,17 @@
-import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from './entities/url.entity';
+import { VisitService } from './visit.service';
 
 @Injectable()
 export class UrlService {
   constructor(
     @InjectRepository(Url)
     private readonly urlRepository: Repository<Url>,
+    private readonly visitService: VisitService,
   ) {}
 
   private validateUrl(url: string): void {
@@ -119,6 +121,21 @@ export class UrlService {
    */
   findBySlug(slug: string) {
     return this.urlRepository.findOneBy({ slug });
+  }
+
+  async visitUrl(slug: string, ipAddress: string, userAgent: string, referer: string) {
+    const url = await this.findBySlug(slug);
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+    
+    // Url has been found, recording the visit
+    this.visitService.recordVisit(url.id, ipAddress, userAgent, referer).catch(error => {
+      console.error('Failed to record visit:', error);
+    });
+    
+    // Redirect to the URL
+    return url;
   }
 
   /**

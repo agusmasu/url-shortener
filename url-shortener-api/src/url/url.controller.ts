@@ -29,20 +29,12 @@ export class UrlController {
 
   @Get('redirect/:slug')
   async redirect(@Param('slug') slug: string, @Res() res: Response, @Req() req: Request) {
-    const url = await this.urlService.findBySlug(slug);
-    if (!url) {
-      throw new NotFoundException('URL not found');
-    }
-
     // Extract visitor information
     const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
     const userAgent = req.get('User-Agent');
     const referer = req.get('Referer');
 
-    // Record the visit (don't await to avoid delaying the redirect)
-    this.visitService.recordVisit(url.id, ipAddress, userAgent, referer).catch(error => {
-      console.error('Failed to record visit:', error);
-    });
+    const url = await this.urlService.visitUrl(slug, ipAddress, userAgent, referer);
 
     return res.redirect(HttpStatus.FOUND, url.url);
   }

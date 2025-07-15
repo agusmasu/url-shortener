@@ -23,6 +23,12 @@ describe('UrlService', () => {
             delete: jest.fn(),
           },
         },
+        {
+          provide: require('./visit.service').VisitService,
+          useValue: {
+            recordVisit: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
