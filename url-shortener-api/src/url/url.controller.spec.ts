@@ -3,6 +3,7 @@ import { UrlController } from './url.controller';
 import { UrlService } from './url.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
+import { VisitService } from './visit.service';
 
 describe('UrlController', () => {
   let controller: UrlController;
@@ -20,6 +21,15 @@ describe('UrlController', () => {
             findBySlug: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
+          },
+        },
+        {
+          provide: VisitService,
+          useValue: {
+            recordVisit: jest.fn(),
+            getVisitStats: jest.fn(),
+            getVisitHistory: jest.fn(),
+            getAllVisits: jest.fn(),
           },
         },
         {

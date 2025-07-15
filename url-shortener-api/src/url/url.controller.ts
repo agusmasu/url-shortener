@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, NotFoundException } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, NotFoundException, Req, Query } from '@nestjs/common';
+import { Response, Request } from 'express';
 import { UrlService } from './url.service';
+import { VisitService } from './visit.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 
 @Controller('url')
 export class UrlController {
-  constructor(private readonly urlService: UrlService) {}
+  constructor(
+    private readonly urlService: UrlService,
+    private readonly visitService: VisitService,
+  ) {}
 
   @Post()
   create(@Body() createUrlDto: CreateUrlDto) {
@@ -24,11 +28,22 @@ export class UrlController {
   }
 
   @Get('redirect/:slug')
-  async redirect(@Param('slug') slug: string, @Res() res: Response) {
+  async redirect(@Param('slug') slug: string, @Res() res: Response, @Req() req: Request) {
     const url = await this.urlService.findBySlug(slug);
     if (!url) {
       throw new NotFoundException('URL not found');
     }
+
+    // Extract visitor information
+    const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    const userAgent = req.get('User-Agent');
+    const referer = req.get('Referer');
+
+    // Record the visit (don't await to avoid delaying the redirect)
+    this.visitService.recordVisit(url.id, ipAddress, userAgent, referer).catch(error => {
+      console.error('Failed to record visit:', error);
+    });
+
     return res.redirect(HttpStatus.FOUND, url.url);
   }
 
@@ -40,5 +55,35 @@ export class UrlController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.urlService.remove(+id);
+  }
+
+  @Get(':id/stats')
+  async getVisitStats(@Param('id') id: string) {
+    const url = await this.urlService.findOne(+id);
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+    return this.visitService.getVisitStats(+id);
+  }
+
+  @Get(':id/visits')
+  async getVisitHistory(
+    @Param('id') id: string,
+    @Query('limit') limit: string = '50',
+    @Query('offset') offset: string = '0',
+  ) {
+    const url = await this.urlService.findOne(+id);
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+    return this.visitService.getVisitHistory(+id, +limit, +offset);
+  }
+
+  @Get('visits/all')
+  async getAllVisits(
+    @Query('limit') limit: string = '50',
+    @Query('offset') offset: string = '0',
+  ) {
+    return this.visitService.getAllVisits(+limit, +offset);
   }
 }

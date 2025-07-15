@@ -100,6 +100,55 @@ Content-Type: application/json
 DELETE /url/{id}
 ```
 
+#### Get visit statistics for a URL
+```bash
+GET /url/{id}/stats
+```
+
+Response:
+```json
+{
+  "totalVisits": 150,
+  "recentVisits": 25,
+  "uniqueVisitors": 18
+}
+```
+
+#### Get visit history for a URL
+```bash
+GET /url/{id}/visits?limit=20&offset=0
+```
+
+Response:
+```json
+[
+  {
+    "id": 1,
+    "urlId": 1,
+    "ipAddress": "192.168.1.1",
+    "userAgent": "Mozilla/5.0...",
+    "referer": "https://google.com",
+    "visitedAt": "2025-07-15T10:30:00.000Z"
+  }
+]
+```
+
+#### Get all visits across all URLs
+```bash
+GET /url/visits/all?limit=50&offset=0
+```
+
+### Visit Tracking Features
+
+The API automatically tracks visits to shortened URLs with the following information:
+- **IP Address**: Visitor's IP address for analytics
+- **User Agent**: Browser/client information
+- **Referer**: The page that linked to the shortened URL
+- **Timestamp**: When the visit occurred
+- **Visit Count**: Total number of visits per URL
+
+Visit tracking happens automatically when someone visits a shortened URL. The tracking is non-blocking, so it doesn't slow down the redirect process.
+
 ### How it works
 
 1. When you create a shortened URL, the API generates a unique 6-character slug

@@ -98,7 +98,9 @@ export class UrlService {
    * @returns All URLs
    */
   findAll() {
-    return this.urlRepository.find();
+    return this.urlRepository.find({
+      order: { createdAt: 'DESC' },
+    });
   }
 
   /**
