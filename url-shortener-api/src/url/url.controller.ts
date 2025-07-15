@@ -15,22 +15,31 @@ export class UrlController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createUrlDto: CreateUrlDto) {
-    return this.urlService.create(createUrlDto);
+  create(@Body() createUrlDto: CreateUrlDto, @Req() req: Request) {
+    const user = req.user;
+    return this.urlService.create(createUrlDto, user);
   }
 
-  @Get()
-  findAll() {
-    return this.urlService.findAll();
+  @Get('list')
+  @UseGuards(AuthGuard)
+  findAll(@Req() req: Request) {
+    const user = req.user;
+    console.info(`User ${user.sub} is fetching all URLs`);
+    return this.urlService.findAll(user.sub);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.urlService.findOne(+id);
+  @UseGuards(AuthGuard)
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user;
+    console.info(`User ${user.sub} is fetching URL ${id}`);
+    return this.urlService.findOneByCreator(+id, user.sub);
   }
 
   @Get('redirect/:slug')
   async redirect(@Param('slug') slug: string, @Res() res: Response, @Req() req: Request) {
+    console.log("Redirecting to URL", slug);
+
     // Extract visitor information
     const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
     const userAgent = req.get('User-Agent');
@@ -42,15 +51,22 @@ export class UrlController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto) {
-    return this.urlService.update(+id, updateUrlDto);
+  @UseGuards(AuthGuard)
+  update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto, @Req() req: Request) {
+    const user = req.user;
+    console.info(`User ${user.sub} is updating URL ${id}`);
+    return this.urlService.update(+id, updateUrlDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.urlService.remove(+id);
+  @UseGuards(AuthGuard)
+  remove(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user;
+    console.info(`User ${user.sub} is deleting URL ${id}`);
+    return this.urlService.remove(+id, user);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id/stats')
   async getVisitStats(@Param('id') id: string) {
     const url = await this.urlService.findOne(+id);
@@ -61,6 +77,7 @@ export class UrlController {
   }
 
   @Get(':id/visits')
+  @UseGuards(AuthGuard)
   async getVisitHistory(
     @Param('id') id: string,
     @Query('limit') limit: string = '50',
@@ -74,6 +91,7 @@ export class UrlController {
   }
 
   @Get('visits/all')
+  @UseGuards(AuthGuard)
   async getAllVisits(
     @Query('limit') limit: string = '50',
     @Query('offset') offset: string = '0',

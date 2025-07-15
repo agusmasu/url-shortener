@@ -52,12 +52,14 @@ export class UrlService {
    * @param createUrlDto - The URL to create
    * @returns The created URL
    */
-  async create(createUrlDto: CreateUrlDto) {
+  async create(createUrlDto: CreateUrlDto, user: any) {
+    console.info(`User ${user.email} is creating a new URL`);
+    
     // Validate the URL at service level
     this.validateUrl(createUrlDto.url);
-    
+
     // Assign a random user ID
-    const createdBy = `user_${Math.floor(Math.random() * 10000)}`;
+    const createdBy = user.sub;
     
     // Generate a unique slug with retry logic
     let slug: string;
@@ -99,8 +101,9 @@ export class UrlService {
    * Find all URLs
    * @returns All URLs
    */
-  findAll() {
+  findAll(userId: number) {
     return this.urlRepository.find({
+      where: { createdBy: userId },
       order: { createdAt: 'DESC' },
     });
   }
@@ -110,6 +113,10 @@ export class UrlService {
    * @param id - The ID of the URL
    * @returns The URL
    */
+  findOneByCreator(id: number, userId: number) {
+    return this.urlRepository.findOneBy({ id, createdBy: userId });
+  }
+
   findOne(id: number) {
     return this.urlRepository.findOneBy({ id });
   }
@@ -144,14 +151,19 @@ export class UrlService {
    * @param updateUrlDto - The URL to update
    * @returns The updated URL
    */
-  async update(id: number, updateUrlDto: UpdateUrlDto) {
+  async update(id: number, updateUrlDto: UpdateUrlDto, user: any) {
     // Validate the URL if it's being updated
     if (updateUrlDto.url) {
       this.validateUrl(updateUrlDto.url);
     }
     
+    const url = await this.urlRepository.findOneBy({ id, createdBy: user.sub });
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+    
     await this.urlRepository.update(id, updateUrlDto);
-    return this.urlRepository.findOneBy({ id });
+    return this.urlRepository.findOneBy({ id, createdBy: user.sub });
   }
 
   /**
@@ -159,7 +171,7 @@ export class UrlService {
    * @param id - The ID of the URL
    * @returns The removed URL
    */
-  remove(id: number) {
-    return this.urlRepository.delete(id);
+  remove(id: number, user: any) {
+    return this.urlRepository.delete({ id, createdBy: user.sub });
   }
 }

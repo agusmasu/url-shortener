@@ -17,6 +17,7 @@ import {
       const request = context.switchToHttp().getRequest();
       const token = this.extractTokenFromHeader(request);
       if (!token) {
+        console.warn('No token provided');
         throw new UnauthorizedException();
       }
       try {
@@ -31,8 +32,10 @@ import {
         // so that we can access it in our route handlers
         request['user'] = payload;
       } catch {
+        console.warn('Invalid token');
         throw new UnauthorizedException();
       }
+      console.info('Token provided');
       return true;
     }
   

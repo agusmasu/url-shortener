@@ -17,6 +17,7 @@ export class AppController {
 
   @Get(':slug')
   async redirect(@Param('slug') slug: string, @Res() res: Response) {
+    console.log("Redirecting to URL", slug);
     const url = await this.urlService.findBySlug(slug);
     if (!url) {
       throw new NotFoundException('URL not found');

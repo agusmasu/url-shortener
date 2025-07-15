@@ -14,7 +14,7 @@ export class Url {
     slug: string;
 
     @Column()
-    createdBy: string;
+    createdBy: number;
 
     @Column({ default: 0 })
     visitCount: number;
