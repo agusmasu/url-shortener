@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Res, HttpStatus, NotFoundException } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Param, Res, HttpStatus, NotFoundException, Req } from '@nestjs/common';
+import { Response, Request} from 'express';
 import { AppService } from './app.service';
 import { UrlService } from './url/url.service';
 
@@ -16,9 +16,13 @@ export class AppController {
   }
 
   @Get(':slug')
-  async redirect(@Param('slug') slug: string, @Res() res: Response) {
+  async redirect(@Param('slug') slug: string, @Req() req: Request, @Res() res: Response) {
     console.log("Redirecting to URL", slug);
-    const url = await this.urlService.findBySlug(slug);
+    const ip = req.ip;                                  // Client IP (honors trust proxy)
+    const referer = req.headers['referer'] || null;     // Referer header (spell‑checked per RFC)
+    const userAgent = req.headers['user-agent'] || '';  // User‑Agent header
+
+    const url = await this.urlService.visitUrl(slug, ip, userAgent, referer);
     if (!url) {
       throw new NotFoundException('URL not found');
     }

@@ -11,17 +11,17 @@ import Link from "next/link"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { useAuth } from "@/contexts/auth-context"
 import { UserMenu } from "@/components/auth/user-menu"
-import { authService } from "@/lib/auth"
+import { authService, API_BASE_URL } from "@/lib/auth"
 import { GlassCard } from "@/components/ui/glass-card"
 
 interface ShortenedUrl {
-  id: string
+  id: number
   originalUrl: string
   shortUrl: string
   slug: string
   createdAt: string
   visits: number
-  userId?: string
+  userId?: number
 }
 
 function DashboardContent() {
@@ -44,8 +44,18 @@ function DashboardContent() {
 
       if (response.ok) {
         const data = await response.json()
-        setUrls(data)
-        setFilteredUrls(data)
+        // Map backend schema to UI schema
+        const mapped = data.map((item: any) => ({
+          id: item.id,
+          originalUrl: item.url,
+          shortUrl: `${API_BASE_URL}/${item.slug}`,
+          slug: item.slug,
+          createdAt: item.createdAt,
+          visits: item.visitCount,
+          userId: item.createdBy,
+        }))
+        setUrls(mapped)
+        setFilteredUrls(mapped)
       } else {
         // Fallback to localStorage for demo
         const savedUrls = JSON.parse(localStorage.getItem("shortenedUrls") || "[]")
@@ -90,7 +100,7 @@ function DashboardContent() {
     }
   }
 
-  const deleteUrl = async (id: string) => {
+  const deleteUrl = async (id: number) => {
     try {
       // Try API call first
       const response = await authService.authenticatedFetch(`/api/urls/${id}`, {

@@ -1,6 +1,6 @@
 import type { AuthResponse, LoginRequest, RegisterRequest } from "@/types/auth"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
 class AuthService {
   private getStoredToken(): string | null {
@@ -139,7 +139,19 @@ class AuthService {
       ...options.headers,
     }
 
-    return fetch(url, {
+    // Map UI routes to backend routes
+    let fullUrl = url
+    if (url === "/api/urls") {
+      fullUrl = `${API_BASE_URL}/admin/url/list`
+    } else if (url.startsWith("/api/urls/")) {
+      // DELETE or other actions on a specific URL
+      const id = url.replace("/api/urls/", "")
+      fullUrl = `${API_BASE_URL}/admin/url/${id}`
+    } else if (!url.startsWith("http")) {
+      fullUrl = `${API_BASE_URL}${url}`
+    }
+
+    return fetch(fullUrl, {
       ...options,
       headers,
     })

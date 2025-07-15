@@ -40,7 +40,13 @@ export class UserService {
     // Generate JWT
     const payload = { sub: user.id, email: user.email };
     const token = this.jwtService.sign(payload);
-    return { access_token: token };
+    // Prepare user object for response (exclude password)
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+    };
+    return { user: userResponse, accessToken: token };
   }
 
   private hashPassword(password: string): string {

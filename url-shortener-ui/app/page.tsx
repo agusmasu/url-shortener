@@ -15,13 +15,13 @@ import { authService } from "@/lib/auth"
 import { GlassCard } from "@/components/ui/glass-card"
 
 interface ShortenedUrl {
-  id: string
-  originalUrl: string
-  shortUrl: string
+  id: number
+  url: string
   slug: string
+  createdBy: number
+  visitCount: number
   createdAt: string
-  visits: number
-  userId?: string
+  updatedAt: string
 }
 
 export default function HomePage() {
@@ -56,12 +56,12 @@ export default function HomePage() {
 
     try {
       if (isAuthenticated) {
-        // Make authenticated API call
-        const response = await authService.authenticatedFetch("/api/urls/shorten", {
+        // Make authenticated API call to new endpoint
+        const response = await authService.authenticatedFetch(`/admin/url`, {
           method: "POST",
           body: JSON.stringify({
-            originalUrl: url,
-            customSlug: customSlug || undefined,
+            url: url,
+            slug: customSlug || undefined,
           }),
         })
 
@@ -77,13 +77,13 @@ export default function HomePage() {
 
         const slug = customSlug || Math.random().toString(36).substring(2, 8)
         const newShortenedUrl: ShortenedUrl = {
-          id: Date.now().toString(),
-          originalUrl: url,
-          shortUrl: `https://short.ly/${slug}`,
+          id: Date.now(),
+          url: url,
           slug,
+          createdBy: 0,
+          visitCount: 0,
           createdAt: new Date().toISOString(),
-          visits: 0,
-          userId: user?.id,
+          updatedAt: new Date().toISOString(),
         }
 
         setShortenedUrl(newShortenedUrl)
@@ -123,19 +123,14 @@ export default function HomePage() {
     setError("")
   }
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+
   return (
     <div className="min-h-screen gradient-bg py-12 px-4 relative">
-      <div className="max-w-2xl mx-auto">
-        {/* Header with user menu */}
-        <div className="flex justify-between items-start mb-12">
-          <div className="flex-1">
-            <div className="text-center">
-              <h1 className="text-5xl font-bold mb-4 gradient-text float">URL Shortener</h1>
-              <p className="text-xl text-muted-foreground">Transform long URLs into short, shareable links ✨</p>
-            </div>
-          </div>
-
-          <div className="flex-shrink-0 ml-4">
+      <div className="max-w-2xl mx-auto relative">
+        {/* User menu or sign in button: absolute on desktop, static below header on mobile */}
+        <div className="hidden sm:block">
+          <div className="absolute top-0 right-0 mt-4 mr-4 z-10">
             {isAuthenticated ? (
               <UserMenu />
             ) : (
@@ -144,6 +139,23 @@ export default function HomePage() {
               </Button>
             )}
           </div>
+        </div>
+
+        {/* Centered header */}
+        <div className="flex flex-col items-center justify-center mb-12 mt-4 sm:mt-4 mt-16">
+          <h1 className="text-5xl font-bold mb-3 gradient-text">URL Shortener</h1>
+          <p className="text-xl text-muted-foreground text-center max-w-xl">Transform long URLs into short, shareable links ✨</p>
+        </div>
+
+        {/* User menu or sign in button for mobile, below header */}
+        <div className="flex justify-center mb-6 sm:hidden">
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20">
+              <a href="/auth">Sign In</a>
+            </Button>
+          )}
         </div>
 
         {/* Authentication notice for non-authenticated users */}
@@ -239,7 +251,7 @@ export default function HomePage() {
                     <div>
                       <label className="text-sm font-medium text-muted-foreground block mb-2">Original URL:</label>
                       <div className="text-sm break-all bg-white/5 p-3 rounded-lg border border-white/10">
-                        {shortenedUrl.originalUrl}
+                        {shortenedUrl.url}
                       </div>
                     </div>
 
@@ -247,7 +259,7 @@ export default function HomePage() {
                       <label className="text-sm font-medium text-muted-foreground block mb-2">Shortened URL:</label>
                       <div className="flex items-center gap-3">
                         <Input
-                          value={shortenedUrl.shortUrl}
+                          value={API_BASE_URL + "/" + shortenedUrl.slug}
                           readOnly
                           className="bg-white/10 border-white/20 font-mono text-sm"
                         />
@@ -255,7 +267,7 @@ export default function HomePage() {
                           type="button"
                           variant="outline"
                           size="icon"
-                          onClick={() => copyToClipboard(shortenedUrl.shortUrl)}
+                          onClick={() => copyToClipboard(API_BASE_URL + "/" + shortenedUrl.slug)}
                           className="bg-white/10 border-white/20 hover:bg-white/20 h-10 w-10 flex-shrink-0"
                         >
                           <Copy className="h-4 w-4" />
