@@ -45,6 +45,11 @@ export class UrlService {
     }
   }
 
+  /**
+   * Create a new URL
+   * @param createUrlDto - The URL to create
+   * @returns The created URL
+   */
   async create(createUrlDto: CreateUrlDto) {
     // Validate the URL at service level
     this.validateUrl(createUrlDto.url);
@@ -88,18 +93,38 @@ export class UrlService {
     }
   }
 
+  /**
+   * Find all URLs
+   * @returns All URLs
+   */
   findAll() {
     return this.urlRepository.find();
   }
 
+  /**
+   * Find a URL by ID
+   * @param id - The ID of the URL
+   * @returns The URL
+   */
   findOne(id: number) {
     return this.urlRepository.findOneBy({ id });
   }
 
+  /**
+   * Find a URL by slug
+   * @param slug - The slug of the URL
+   * @returns The URL
+   */
   findBySlug(slug: string) {
     return this.urlRepository.findOneBy({ slug });
   }
 
+  /**
+   * Update a URL
+   * @param id - The ID of the URL
+   * @param updateUrlDto - The URL to update
+   * @returns The updated URL
+   */
   async update(id: number, updateUrlDto: UpdateUrlDto) {
     // Validate the URL if it's being updated
     if (updateUrlDto.url) {
@@ -110,6 +135,11 @@ export class UrlService {
     return this.urlRepository.findOneBy({ id });
   }
 
+  /**
+   * Remove a URL
+   * @param id - The ID of the URL
+   * @returns The removed URL
+   */
   remove(id: number) {
     return this.urlRepository.delete(id);
   }
