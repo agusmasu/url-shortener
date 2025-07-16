@@ -4,6 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Url } from './entities/url.entity';
 import { Repository } from 'typeorm';
 import { BadRequestException, ConflictException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { CreateUrlDto } from './dto/create-url.dto';
 
 describe('UrlService', () => {
   let service: UrlService;
@@ -43,6 +46,9 @@ describe('UrlService', () => {
   describe('validateUrl', () => {
     it('accepts a valid URL', () => {
       expect(() => service["validateUrl"]('https://www.example.com')).not.toThrow();
+    });
+    it('accepts a valid URL with subroute', () => {
+      expect(() => service["validateUrl"]('http://google.com/test/path?query=1')).not.toThrow();
     });
     it('rejects an invalid URL', () => {
       expect(() => service["validateUrl"]('not-a-url')).toThrow(BadRequestException);
@@ -107,6 +113,20 @@ describe('UrlService', () => {
     it('throws on invalid URL', async () => {
       const mockUser = { sub: 1, email: 'test@example.com' };
       await expect(service.create({ url: 'not-a-url' } as any, mockUser)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('visitUrl', () => {
+    it('should log an error if recordVisit fails but still return the URL', async () => {
+      const url = { id: 1, url: 'https://www.example.com', slug: 'slug' };
+      service.findBySlug = jest.fn().mockResolvedValue(url);
+      const visitService = (service as any).visitService;
+      visitService.recordVisit = jest.fn().mockRejectedValue(new Error('DB error'));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const result = await service.visitUrl('slug', '1.2.3.4', 'agent', 'referer');
+      expect(result).toBe(url);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to record visit:', expect.any(Error));
+      consoleErrorSpy.mockRestore();
     });
   });
 });
