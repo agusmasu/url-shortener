@@ -76,7 +76,7 @@ A full-stack URL shortening platform with analytics, authentication, and a moder
 ### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd deeporigin-url-shortener
+cd url-shortener
 ```
 
 ### 2. Create Environment Files
