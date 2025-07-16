@@ -48,3 +48,11 @@ To run both the API and UI together, use Docker Compose from the project root:
 
 - The UI will be available at http://localhost:3000
 - The API will be available at http://localhost:3001 
+
+---
+
+## Session Expiration Handling
+
+- If a user's session (access token) expires, any authenticated API request will automatically log the user out and redirect them to the login screen (`/auth`).
+- Currently, the login screen does **not** display a message about session expiration.
+- In the future, you could enhance the login screen to show a friendly message (e.g., "Your session has expired. Please log in again.") when a user is redirected due to session expiration. This would improve the user experience and make the reason for the redirect clear. 
