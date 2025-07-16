@@ -42,11 +42,15 @@ export default function HomePage() {
   }, [])
 
   const validateUrl = (url: string): boolean => {
+    // Must start with http:// or https://
+    if (!/^https?:\/\//i.test(url)) return false;
+    // Must not contain spaces
+    if (/\s/.test(url)) return false;
     try {
-      new URL(url)
-      return true
+      new URL(url);
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -92,6 +96,7 @@ export default function HomePage() {
 
         const data = await response.json()
         setShortenedUrl(data)
+        setIsLoading(false)
       } else {
         // Show modal instead of error
         setShowLoginModal(true)
