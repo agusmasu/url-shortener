@@ -25,25 +25,24 @@ A full-stack URL shortening platform with analytics, authentication, and a moder
 
 ## Features
 
-### Backend
+### Product Features
 - Create short URLs with auto-generated or custom slugs
 - Redirect short URLs to original destinations
 - Full CRUD operations for URL management
+- User registration and login
+- Authentication-protected dashboard and routes
+- Visit statistics and analytics for each URL
+- View and copy short links
+- Responsive, modern dashboard UI (desktop & mobile)
+- Rate limiting to prevent abuse
+
+### Technical Features
 - Comprehensive URL validation (protocol, hostname, length)
 - PostgreSQL database with TypeORM
 - Input validation and transformation
 - RESTful API design
 - Authentication and user management
-- Visit statistics and analytics
 - Comprehensive test coverage
-
-### Frontend
-- Modern dashboard to manage your URLs
-- User registration and login
-- View and copy short links
-- View visit statistics for each URL
-- Responsive design (desktop & mobile)
-- Authentication-protected routes
 
 ---
 
@@ -85,7 +84,9 @@ Before running Docker Compose, create the following `.env` files:
 #### Backend (`url-shortener-api/.env`):
 ```env
 # Database Configuration
-POSTGRES_HOST=postgres
+# Use 'db' as the host when running with Docker Compose
+# Use 'localhost' as the host when running locally without Docker
+POSTGRES_HOST=db
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -130,6 +131,7 @@ pnpm run dev
 Set these in a `.env` file or your shell (backend):
 ```bash
 # Database Configuration
+# Use 'localhost' if running locally, or 'postgres' if running with Docker Compose
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
