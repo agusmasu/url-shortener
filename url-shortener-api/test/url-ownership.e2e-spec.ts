@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('URL Ownership (e2e)', () => {
@@ -34,7 +34,7 @@ describe('URL Ownership (e2e)', () => {
 
   it('User1 can create a URL', async () => {
     const res = await request(app.getHttpServer())
-      .post('/url')
+      .post('/admin/url')
       .set('Authorization', `Bearer ${user1Token}`)
       .send({ url: 'https://user1.com' })
       .expect(201);

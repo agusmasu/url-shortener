@@ -2,6 +2,8 @@ import { Controller, Get, Param, Res, HttpStatus, NotFoundException, Req } from 
 import { Response, Request} from 'express';
 import { AppService } from './app.service';
 import { UrlService } from './url/url.service';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { UseGuards } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -11,6 +13,8 @@ export class AppController {
   ) {}
 
   @Get(':slug')
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per 60 seconds per IP
   async redirect(@Param('slug') slug: string, @Req() req: Request, @Res() res: Response) {
     // First, we get the information about the visit:
     const ip = req.ip;

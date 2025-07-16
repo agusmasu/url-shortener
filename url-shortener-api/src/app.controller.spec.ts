@@ -2,12 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UrlService } from './url/url.service';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot({
+          throttlers: [
+            {
+              ttl: 60000,
+              limit: 10,
+            },
+          ],
+        }),
+      ],
       controllers: [AppController],
       providers: [
         AppService,
