@@ -25,9 +25,16 @@ interface ShortenedUrl {
 }
 
 function DashboardContent() {
+  // State to store the URLs the user has created:
   const [urls, setUrls] = useState<ShortenedUrl[]>([])
+  
+  // State to store the search term:
   const [searchTerm, setSearchTerm] = useState("")
+  
+  // State to store the filtered URLs:
   const [filteredUrls, setFilteredUrls] = useState<ShortenedUrl[]>([])
+  
+  // State to store if the URLs are loading:
   const [isLoading, setIsLoading] = useState(true)
 
   const { user } = useAuth()

@@ -118,10 +118,20 @@ class AuthService {
       fullUrl = `${API_BASE_URL}${url}`
     }
 
-    return fetch(fullUrl, {
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     })
+
+    if (response.status === 401 && typeof window !== "undefined") {
+      this.removeStoredToken()
+      // Optionally, also clear user state if you have a context
+      window.location.href = "/auth?message=session-expired"
+      // Return a rejected promise to halt further processing
+      return Promise.reject(new Error("Session expired. Please log in again."))
+    }
+
+    return response
   }
 }
 

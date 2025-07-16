@@ -178,3 +178,23 @@ See [url-shortener-api/README.md](url-shortener-api/README.md) for backend exten
     - Application monitoring
     - Structured logging
     - Error tracking and alerting
+
+---
+
+## How Redirection Works
+
+When a user visits a shortened URL (e.g., `https://yourdomain.com/abc123`), the request is handled directly by the backend (NestJS API). The backend looks up the slug in the database and issues a fast HTTP 3xx redirect to the original URL. This approach ensures:
+
+- **Maximum speed:** The user is redirected immediately, without waiting for the Next.js frontend to load in the browser.
+- **Efficiency:** No unnecessary JavaScript or React code is loaded just to perform a redirect.
+- **SEO and analytics:** Server-side redirects are better for search engines and can more reliably track visits.
+
+**Why not use the frontend for redirection?**
+
+It is possible to implement redirection in the Next.js frontend (e.g., with a dynamic `[slug]` route that fetches the original URL and then redirects). However, this would require the browser to load the entire Next.js app before redirecting, which can noticeably slow down the user experience. 
+
+**When would frontend redirection make sense?**
+- If you want to show a custom interstitial page (e.g., countdown, ads, or analytics) before redirecting.
+- If you need to run custom client-side logic before sending the user to the destination.
+
+For most use cases, backend redirection is preferred for its speed and simplicity.

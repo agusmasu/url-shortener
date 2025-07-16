@@ -8,12 +8,18 @@ import { useAuth } from "@/contexts/auth-context"
 import { GlassCard } from "@/components/ui/glass-card"
 
 export default function AuthPage() {
+
+  // State to toggle between login and register forms:
   const [isLogin, setIsLogin] = useState(true)
+  
+  // State to check if the user is authenticated:
   const { isAuthenticated } = useAuth()
+
   const router = useRouter()
 
   useEffect(() => {
     if (isAuthenticated) {
+      // If the user is authenticated, redirect to the home page:
       router.push("/")
     }
   }, [isAuthenticated, router])
